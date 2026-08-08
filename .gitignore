@@ -1,0 +1,34 @@
+# Virtuálne prostredie Python
+.venv/
+venv/
+
+# Python cache a preložené súbory
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testovacie a typové cache
+.pytest_cache/
+.mypy_cache/
+
+# Build a balíky
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Thonny lokálne súbory
+.thonny/
+
+# Lokálne tajné alebo konfiguračné súbory
+.env
+.env.*
+
+# Linux / editor dočasné súbory
+*~
+*.swp
+*.swo
