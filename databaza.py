@@ -1,6 +1,6 @@
 import sqlite3
 
-DATABAZA = "ziaci.db"
+DATABAZA = "znamky.db"
 
 
 def otvor_databazu() -> sqlite3.Connection:
@@ -26,7 +26,7 @@ def vytvor_tabulku() -> None:
         """)
 
 
-def pridaj_ziaka(other: Ziak) -> None:
+def pridaj_ziaka(ziak) -> int|None :
     with otvor_databazu() as conn:
         cur = conn.execute(
             """
@@ -42,21 +42,40 @@ def pridaj_ziaka(other: Ziak) -> None:
                 ziak.znamky["fy"],
                 ziak.znamky["che"],
                 ziak.znamky["bi"],
-                ziak.znamky["priemer"],
-                ziak.znamky["hodnotenie"],
+                ziak.priemer,
+                ziak.hodnotenie
             ),
         )
 
         return cur.lastrowid
 
 
-def najdi_ziaka(other: Ziak) -> Ziak:
-    pass
+def najdi_ziaka(hladaj_priezvisko) -> list[tuple]:
+    with otvor_databazu() as conn:
+        cur = conn.execute(
+            "SELECT * FROM ziaci WHERE priezvisko = ?", (hladaj_priezvisko.capitalize(),)
+        )
+
+        # return cur.lastrowid
+        return cur.fetchall()
 
 
-def vymaz_ziaka(other: Ziak) -> None:
-    pass
+def vymaz_ziaka(vymaz_priezvisko) -> bool | int | None :
+    najdene = najdi_ziaka(vymaz_priezvisko)
+    if not najdene:
+        return False
+    else:
+        for jeden in najdene:
+            print(jeden)
+        id = int(input("Zadaj ID ziaka na vymazanie"))
+        with otvor_databazu() as conn:
+            cur = conn.execute("DELETE FROM ziaci WHERE pc = ?", (id,))
+        return cur.lastrowid
 
 
-def vypis_zaznamy() -> None:
-    pass
+def vypis_zaznamy() -> list[tuple]:
+    with otvor_databazu() as conn:
+        cur = conn.execute("SELECT * FROM ziaci ORDER BY priezvisko")
+
+        # return cur.lastrowid
+        return cur.fetchall()
