@@ -2,7 +2,7 @@ import sqlite3
 from common.utils import get_int
 
 
-class Znamky:
+class Ziak:
 
     predmety = ("sj", "aj", "ma", "fy", "che", "bi")
     predmety_kontrola = frozenset(predmety)
@@ -81,17 +81,17 @@ class Znamky:
         return "prospel"
 
 
-def nacitaj_znamky() -> Znamky:
+def nacitaj_znamky() -> Ziak:
     nacitaj_meno = input("Zadaj meno:")
     nacitaj_priezvisko = input("Zadaj priezvisko:")
     zapisat = {}
-    for predmet in Znamky.predmety:
+    for predmet in Ziak.predmety:
         text = f"Zadaj znamku z {predmet.upper()}:"
         zapisat[predmet] = get_int(text, 1, 5, False)
-    return Znamky(nacitaj_meno, nacitaj_priezvisko, zapisat)
+    return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
-ziak = Znamky("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
+ziak = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
 with sqlite3.connect("znamky.db") as conn:
     cur = conn.cursor()
     cur.execute(
@@ -106,7 +106,7 @@ with sqlite3.connect("znamky.db") as conn:
             ziak.znamky["che"],
             ziak.znamky["bi"],
             ziak.priemer,
-            ziak.hodnotenie      
+            ziak.hodnotenie,
         ),
     )
     conn.commit()  # pri with nie je nutný, ale pri učení je názorný
@@ -114,5 +114,5 @@ with sqlite3.connect("znamky.db") as conn:
     # print(cur.fetchall())
 
 
-# Z = Znamky("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
-#Z1 = nacitaj_znamky()
+# Z = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
+# Z1 = nacitaj_znamky()

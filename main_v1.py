@@ -3,7 +3,7 @@ from common.utils import get_int
 import databaza
 
 
-class Znamky:
+class Ziak:
 
     predmety = ("sj", "aj", "ma", "fy", "che", "bi")
     predmety_kontrola = frozenset(predmety)
@@ -82,22 +82,17 @@ class Znamky:
         return "prospel"
 
 
-def nacitaj_znamky() -> Znamky:
+def nacitaj_znamky() -> Ziak:
     nacitaj_meno = input("Zadaj meno:")
     nacitaj_priezvisko = input("Zadaj priezvisko:")
     zapisat = {}
-    for predmet in Znamky.predmety:
+    for predmet in Ziak.predmety:
         text = f"Zadaj znamku z {predmet.upper()}:"
         zapisat[predmet] = get_int(text, 1, 5, False)
-    return Znamky(nacitaj_meno, nacitaj_priezvisko, zapisat)
+    return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
 def vytvor_menu() -> None:
-    VYPIS_ZIAKOV = "1"
-    PRIDAJ_ZIAKA = "2"
-    VYMAZ_ZIAKA = "3"
-    NAJDI_ZIAKA = "4"
-    KONIEC = "k"
     print("Vyber jednu z moznosti:")
     while (
         vybrane := input(
@@ -128,6 +123,6 @@ def vytvor_menu() -> None:
                 print("Neznama moznost")
 
 
-# Z = Znamky("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
+# Z = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
 # Z1 = nacitaj_znamky()
 vytvor_menu()
