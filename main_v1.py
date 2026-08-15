@@ -104,7 +104,7 @@ def vytvor_menu() -> None:
     while (
         (
             vybrane := input(
-                """1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziakak
+                """1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziaka
 5 - uprav ziaka\n6 - prepocitaj priemery\n7 - urob vyhodnotenie\nk - koniec\nZadaj volbu:"""
             )
         )
@@ -143,9 +143,12 @@ def vytvor_menu() -> None:
                 else:
                     print("Udaje ziaka boli zmenene!")
             case "6":
-                pass
+                prepocitane = databaza.prepocitaj_priemery()
+                if prepocitane is not None:
+                    print("Priemery boli prepocitane!")
+                    
             case "7":
-                pass
+                databaza.urob_vyhodnotenie()
             case "k":
                 break
             case _:

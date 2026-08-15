@@ -60,10 +60,11 @@ def najdi_ziaka(hladaj_priezvisko) -> list[tuple]:
         # return cur.lastrowid
         return cur.fetchall()
 
-def vymaz_ziaka(vymaz_priezvisko) -> int | None :
+
+def vymaz_ziaka(vymaz_priezvisko) -> int | None:
     najdene = najdi_ziaka(vymaz_priezvisko)
     if not najdene:
-        return None 
+        return None
     else:
         for jeden in najdene:
             print(jeden)
@@ -104,12 +105,22 @@ def uprav_ziaka(polozka_menu: str) -> int | None:
         return cur.rowcount
 
 
-def prepocitaj_priemery() -> None:
-    pass
+def prepocitaj_priemery() -> int | None:
+    with otvor_databazu() as conn:
+        cur = conn.execute(f"UPDATE ziaci  SET priemer = (Sj+Aj+Ma+Fy+Bi+Che)/6")
+        return cur.rowcount
 
 
 def urob_vyhodnotenie() -> None:
-    pass
+    with otvor_databazu() as conn:
+        cur = conn.execute("""UPDATE ziaci
+                                SET hodnotenie = CASE
+                                                    WHEN max(sj,aj,ma,fy,che,bi)==5 THEN 'neprospel'
+                                                    WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=1.5 THEN 'prospel s vyznamenanim'
+                                                    WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=2.0 THEN 'prospel velmi dobre'
+                                                    ELSE 'prospel'
+                                                  END""")
+        return cur.rowcount
 
 
 def vypis_zaznamy() -> list[tuple]:
