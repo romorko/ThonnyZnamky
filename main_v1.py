@@ -1,4 +1,3 @@
-import sqlite3
 from common.utils import get_int
 import databaza
 
@@ -92,13 +91,25 @@ def nacitaj_znamky() -> Ziak:
     return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
+def vytvor_menu_uprav() -> int|None:
+    print("Vyber jednu z moznosti")
+    vyber = input(
+        "a - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nZadaj volbu:"
+    )
+    return databaza.uprav_ziaka(vyber)
+
+
 def vytvor_menu() -> None:
     print("Vyber jednu z moznosti:")
     while (
-        vybrane := input(
-            "1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziaka\nk - koniec\n"
+        (
+            vybrane := input(
+                """1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziakak
+5 - uprav ziaka\n6 - prepocitaj priemery\n7 - urob vyhodnotenie\nk - koniec\nZadaj volbu:"""
+            )
         )
-    ) != "k":
+        != "k"
+    ):
         match vybrane:
             case "1":
                 vysledok = databaza.vypis_zaznamy()
@@ -106,9 +117,16 @@ def vytvor_menu() -> None:
                     print(zaznam)
             case "2":
                 databaza.pridaj_ziaka(nacitaj_znamky())
+                print("Ziak bol pridany!")
             case "3":
-                zmazat = input("Zadaj preizvisko ziaka:")
-                databaza.vymaz_ziaka(zmazat)
+                zmazat = input("Zadaj priezvisko ziaka:")
+                pocet_zmazanych = databaza.vymaz_ziaka(zmazat)
+                if pocet_zmazanych is None:
+                    print(f"Ziak s priezviskom {zmazat} v databaze nie je!")
+                elif pocet_zmazanych == 0:
+                    print("Ziak so zadanym ID sa nenasiel!")
+                else:
+                    print(f"Ziak s priezviskom {zmazat} bol vymazany!")
             case "4":
                 najst = input("Zadaj priezvisko hladaneho ziaka:")
                 nasiel = databaza.najdi_ziaka(najst)
@@ -116,7 +134,18 @@ def vytvor_menu() -> None:
                     print("Taky ziak tam nie je")
                 else:
                     print(nasiel)
-
+            case "5":
+                pocet_upravenych = vytvor_menu_uprav()
+                if pocet_upravenych is None:
+                    print("Neplatna polozka menu!")
+                elif pocet_upravenych == 0:
+                    print("Ziak so zadanym ID sa nenasiel!")
+                else:
+                    print("Udaje ziaka boli zmenene!")
+            case "6":
+                pass
+            case "7":
+                pass
             case "k":
                 break
             case _:
