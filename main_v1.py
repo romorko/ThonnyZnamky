@@ -1,5 +1,5 @@
-from common.utils import get_int
 import databaza
+from common.utils import get_int
 
 
 class Ziak:
@@ -91,12 +91,42 @@ def nacitaj_znamky() -> Ziak:
     return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
-def vytvor_menu_uprav() -> int|None:
-    print("Vyber jednu z moznosti")
-    vyber = input(
-        "a - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nZadaj volbu:"
-    )
-    return databaza.uprav_ziaka(vyber)
+def vytvor_menu_uprav(upravujem_id: int) -> int | None:
+    while (
+        vyber := input(
+            "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nk - koniec\nZadaj volbu:"
+        )
+    ) != "k":
+        match vyber:
+            case "a":
+                upravovane_pole = "Priezvisko"
+            case "b":
+                upravovane_pole = "Meno"
+            case "c":
+                upravovane_pole = "Sj"
+            case "d":
+                upravovane_pole = "Aj"
+            case "e":
+                upravovane_pole = "Ma"
+            case "f":
+                upravovane_pole = "Fy"
+            case "g":
+                upravovane_pole = "Bi"
+            case "h":
+                upravovane_pole = "Che"
+            case "k":
+                break
+            case _:
+                print("Neplatna volba")
+        nova_hodnota:int|str        
+        if vyber in ("a", "b"):
+            nova_hodnota = input(f"Zadaj novu hodnotu pola {upravovane_pole.upper()}:")
+        else:
+            nova_hodnota = get_int(
+                f"Zadaj znamku zo {upravovane_pole.upper()}:", 1, 5, False
+            )
+
+    return databaza.uprav_ziaka(upravovane_pole, upravujem_id, nova_hodnota)
 
 
 def vytvor_menu() -> None:
@@ -118,14 +148,14 @@ def vytvor_menu() -> None:
                 databaza.pridaj_ziaka(nacitaj_znamky())
                 print("Ziak bol pridany!")
             case "3":
-                zmazat = input("Zadaj priezvisko ziaka:")
-                pocet_zmazanych = databaza.vymaz_ziaka(zmazat)
-                if pocet_zmazanych is None:
-                    print(f"Ziak s priezviskom {zmazat} v databaze nie je!")
-                elif pocet_zmazanych == 0:
-                    print("Ziak so zadanym ID sa nenasiel!")
+                zmazat_id: int = get_int(
+                    "Zadaj id ziaka, ktorého chceš vymazať:", 1, 1000, False
+                )
+                pocet_zmazanych = databaza.vymaz_ziaka(zmazat_id)
+                if pocet_zmazanych == 0:
+                    print(f"Ziak s ID {zmazat_id} sa nenasiel!")
                 else:
-                    print(f"Ziak s priezviskom {zmazat} bol vymazany!")
+                    print(f"Ziak s ID {zmazat_id} bol vymazany!")
             case "4":
                 najst = input("Zadaj priezvisko hladaneho ziaka:")
                 nasiel = databaza.najdi_ziaka(najst)
@@ -134,7 +164,10 @@ def vytvor_menu() -> None:
                 else:
                     print(nasiel)
             case "5":
-                pocet_upravenych = vytvor_menu_uprav()
+                upravit_id: int = get_int(
+                    "Zadaj id ziaka, ktorého chceš upravit:", 1, 1000, False
+                )
+                pocet_upravenych = vytvor_menu_uprav(upravit_id)
                 if pocet_upravenych is None:
                     print("Neplatna polozka menu!")
                 elif pocet_upravenych == 0:
@@ -145,7 +178,6 @@ def vytvor_menu() -> None:
                 prepocitane = databaza.prepocitaj_priemery()
                 if prepocitane is not None:
                     print("Priemery boli prepocitane!")
-                    
             case "7":
                 databaza.urob_vyhodnotenie()
             case "k":
