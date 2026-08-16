@@ -89,7 +89,7 @@ def prepocitaj_priemery(id_ziaka: int | None = None) -> int | None:
     with otvor_databazu() as conn:
         if id_ziaka is None:
             cur = conn.execute(
-                "UPDATE ziaci  SET priemer = ROUND((Sj+Aj+Ma+Fy+Bi+Che)/6.0,2"
+                "UPDATE ziaci  SET priemer = ROUND((Sj+Aj+Ma+Fy+Bi+Che)/6.0,2)"
             )
         else:
             cur = conn.execute(
