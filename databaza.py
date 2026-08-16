@@ -46,32 +46,34 @@ def pridaj_ziaka(ziak) -> int | None:
                 ziak.hodnotenie,
             ),
         )
+        vlozene_id = cur.lastrowid
+    return vlozene_id
 
-        return cur.lastrowid
-
+def vypis_zaznamy() -> list[tuple]:
+    with otvor_databazu() as conn:
+        vypis_vysledok = conn.execute("SELECT * FROM ziaci ORDER BY priezvisko").fetchall()
+    return vypis_vysledok
 
 def najdi_ziaka(hladaj_priezvisko) -> list[tuple]:
     with otvor_databazu() as conn:
-        cur = conn.execute(
-            "SELECT * FROM ziaci WHERE priezvisko = ?",
-            (hladaj_priezvisko.capitalize(),),
-        )
-
-        # return cur.lastrowid
-        return cur.fetchall()
-
+        najdene = conn.execute(
+            "SELECT * FROM ziaci WHERE priezvisko = COLLATE NOCASE ?",  #ignoruje velkost pismen
+            (hladaj_priezvisko.strip(),), #odstrani medzery pred a za
+        ).fetchall()
+    return najdene
 
 def vymaz_ziaka(vymaz_priezvisko) -> int | None:
-    najdene = najdi_ziaka(vymaz_priezvisko)
-    if not najdene:
+    hladaj_zmazat = najdi_ziaka(vymaz_priezvisko)
+    if not hladaj_zmazat:
         return None
     else:
-        for jeden in najdene:
+        for jeden in hladaj_zmazat:
             print(jeden)
         id = int(input("Zadaj ID ziaka na vymazanie:"))
         with otvor_databazu() as conn:
             cur = conn.execute("DELETE FROM ziaci WHERE id = ?", (id,))
-            return cur.rowcount
+            vymazane = cur.rowcount
+        return vymazane
 
 
 def uprav_ziaka(polozka_menu: str) -> int | None:
@@ -95,36 +97,48 @@ def uprav_ziaka(polozka_menu: str) -> int | None:
         case _:
             print("Neplatna volba")
             return None
-    hladany_ziak = input("Zadaj ID ziaka, ktoreho udaj chces upravit:")
+    hladany_ziak = int(input("Zadaj ID ziaka, ktoreho udaj chces upravit:"))
     nova_hodnota = input(f"Zadaj novu hodnotu pola {upravovane_pole.upper()}:")
     with otvor_databazu() as conn:
         cur = conn.execute(
             f"UPDATE ziaci  SET {upravovane_pole} = ? WHERE id = ?",
             (nova_hodnota, hladany_ziak),
         )
-        return cur.rowcount
+        upravene_zaznamy = cur.rowcount
+    prepocitaj_priemery(hladany_ziak)
+    return upravene_zaznamy
 
 
-def prepocitaj_priemery() -> int | None:
+def prepocitaj_priemery(id_ziaka: int | None = None) -> int | None:
     with otvor_databazu() as conn:
-        cur = conn.execute(f"UPDATE ziaci  SET priemer = (Sj+Aj+Ma+Fy+Bi+Che)/6")
-        return cur.rowcount
+        if id_ziaka is None:
+            cur = conn.execute("UPDATE ziaci  SET priemer = (Sj+Aj+Ma+Fy+Bi+Che)/6")
+        else:
+            cur = conn.execute(
+                "UPDATE ziaci  SET priemer = (Sj+Aj+Ma+Fy+Bi+Che)/6 WHERE id =?",
+                (id_ziaka,),
+            )
+        prepocitane = cur.rowcount
+    return prepocitane
 
 
-def urob_vyhodnotenie() -> None:
+def urob_vyhodnotenie(id_ziaka: int | None = None) -> int|None:
     with otvor_databazu() as conn:
-        cur = conn.execute("""UPDATE ziaci
-                                SET hodnotenie = CASE
-                                                    WHEN max(sj,aj,ma,fy,che,bi)==5 THEN 'neprospel'
-                                                    WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=1.5 THEN 'prospel s vyznamenanim'
-                                                    WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=2.0 THEN 'prospel velmi dobre'
-                                                    ELSE 'prospel'
-                                                  END""")
-        return cur.rowcount
-
-
-def vypis_zaznamy() -> list[tuple]:
-    with otvor_databazu() as conn:
-        cur = conn.execute("SELECT * FROM ziaci ORDER BY priezvisko")
-        # return cur.lastrowid
-        return cur.fetchall()
+        if id_ziaka is None:
+            cur = conn.execute("""UPDATE ziaci
+                                    SET hodnotenie = CASE
+                                                        WHEN max(sj,aj,ma,fy,che,bi)==5 THEN 'neprospel'
+                                                        WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=1.5 THEN 'prospel s vyznamenanim'
+                                                        WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=2.0 THEN 'prospel velmi dobre'
+                                                        ELSE 'prospel'
+                                                      END""")
+        else:
+            cur = conn.execute("""UPDATE ziaci
+                                    SET hodnotenie = CASE
+                                                        WHEN max(sj,aj,ma,fy,che,bi)==5 THEN 'neprospel'
+                                                        WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=1.5 THEN 'prospel s vyznamenanim'
+                                                        WHEN max(sj,aj,ma,fy,che,bi)<=2 and priemer <=2.0 THEN 'prospel velmi dobre'
+                                                        ELSE 'prospel'
+                                                      END WHERE id=?""",(id_ziaka,))
+        pocet_zmien = cur.rowcount
+    return pocet_zmien

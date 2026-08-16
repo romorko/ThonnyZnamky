@@ -100,11 +100,10 @@ def vytvor_menu_uprav() -> int|None:
 
 
 def vytvor_menu() -> None:
-    print("Vyber jednu z moznosti:")
     while (
         (
             vybrane := input(
-                """1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziaka
+                """***********************\nVyber jednu z moznosti:\n1 - vypis ziakov\n2 - pridaj ziaka\n3 - vymaz ziaka\n4 - najdi ziaka
 5 - uprav ziaka\n6 - prepocitaj priemery\n7 - urob vyhodnotenie\nk - koniec\nZadaj volbu:"""
             )
         )
