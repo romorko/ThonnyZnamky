@@ -91,7 +91,7 @@ def nacitaj_znamky() -> Ziak:
     return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
-def vytvor_menu_najdi() -> list[tuple]|int|None:
+def vytvor_menu_najdi() -> list[tuple]|None:
     polozky_menu_najdi: dict = {
         "a": "Priezvisko",
         "b": "Meno",
@@ -104,10 +104,8 @@ def vytvor_menu_najdi() -> list[tuple]|int|None:
         "i": "id",
     }
     vyber = input(
-        "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\ni - ID\nn - navrat\nZadaj volbu:"
+        "Najdi ziaka podla:\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\ni - ID\nZadaj volbu:"
     )
-    if vyber == "n":
-        return -1
     if vyber not in polozky_menu_najdi.keys():
         return None
     hladana_hodnota: int | str
@@ -135,10 +133,8 @@ def vytvor_menu_uprav(upravujem_id: int) -> int | None:
     }
 
     vyber = input(
-        "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nn - navrat\nZadaj volbu:"
+        "Co chces upravit:\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nZadaj volbu:"
     )
-    if vyber == "n":
-        return -1
     if vyber not in polozky_menu_uprav.keys():
         return None
     nova_hodnota: int | str
@@ -181,22 +177,27 @@ def vytvor_menu() -> None:
                 else:
                     print(f"Ziak s ID {zmazat_id} bol vymazany!")
             case "4":
-                # najst = input("Zadaj priezvisko hladaneho ziaka:")
                 nasiel = vytvor_menu_najdi()
-                # nasiel = databaza.najdi_ziaka(najst)
-                if not nasiel:
+                if nasiel is None:
+                    print("Neplatna polozka menu!")
+                elif not nasiel:
                     print("Taky ziak tam nie je")
                 else:
-                    print(nasiel)
+                    for zaznam in nasiel:
+                        print(zaznam)
             case "5":
                 upravit_id: int = get_int(
                     "Zadaj id ziaka, ktorého chceš upravit:", 1, 1000, False
                 )
+                je_tam_id =databaza.najdi_ziaka_1("id",upravit_id)
+                if not je_tam_id:
+                    print("Ziak s takym ID tam nie je!")
+                    continue
+                else :
+                    print(je_tam_id)
                 pocet_upravenych = vytvor_menu_uprav(upravit_id)
                 if pocet_upravenych is None:
                     print("Neplatna polozka menu!")
-                elif pocet_upravenych == -1:
-                    pass
                 elif pocet_upravenych == 0:
                     print("Ziak so zadanym ID sa nenasiel!")
                 else:
@@ -213,6 +214,4 @@ def vytvor_menu() -> None:
                 print("Neznama moznost")
 
 
-# Z = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
-# Z1 = nacitaj_znamky()
 vytvor_menu()
