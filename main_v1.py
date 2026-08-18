@@ -91,64 +91,66 @@ def nacitaj_znamky() -> Ziak:
     return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
 
 
-def vytvor_menu_uprav(upravujem_id: int) -> int | None:
-    while (
-        vyber := input(
-            "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nk - navrat\nZadaj volbu:"
+def vytvor_menu_najdi() -> list[tuple]|int|None:
+    polozky_menu_najdi: dict = {
+        "a": "Priezvisko",
+        "b": "Meno",
+        "c": "Sj",
+        "d": "Aj",
+        "e": "Ma",
+        "f": "Fy",
+        "g": "Bi",
+        "h": "Che",
+        "i": "id",
+    }
+    vyber = input(
+        "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\ni - ID\nn - navrat\nZadaj volbu:"
+    )
+    if vyber == "n":
+        return -1
+    if vyber not in polozky_menu_najdi.keys():
+        return None
+    hladana_hodnota: int | str
+    if polozky_menu_najdi[vyber] in Ziak.predmety:
+        hladana_hodnota = get_int(
+            f"Zadaj znamku zo {polozky_menu_najdi[vyber].upper()}:", 1, 5, False
         )
-    ) != "k":
-        zoznam: dict = {
-            "a": "Priezvisko",
-            "b": "Meno",
-            "c": "Sj",
-            "d": "Aj",
-            "e": "Ma",
-            "f": "Fy",
-            "g": "Bi",
-            "h": "Che",
-        }
-        #         match vyber:
-        #             case "a":
-        #                 upravovane_pole = "Priezvisko"
-        #             case "b":
-        #                 upravovane_pole = "Meno"
-        #             case "c":
-        #                 upravovane_pole = "Sj"
-        #             case "d":
-        #                 upravovane_pole = "Aj"
-        #             case "e":
-        #                 upravovane_pole = "Ma"
-        #             case "f":
-        #                 upravovane_pole = "Fy"
-        #             case "g":
-        #                 upravovane_pole = "Bi"
-        #             case "h":
-        #                 upravovane_pole = "Che"
-        #             case "k":
-        #                 break
-        #             case _:
-        #                 print("Neplatna volba")
-        if vyber == "k":
-            return -1
-        if vyber not in zoznam.keys():
-            return None
-        nova_hodnota: int | str
-        if zoznam[vyber] in Ziak.predmety:
-            nova_hodnota = get_int(
-                f"Zadaj znamku zo {zoznam[vyber].upper()}:", 1, 5, False
-            )
-        else:
-            nova_hodnota = input(f"Zadaj novu hodnotu pola {zoznam[vyber].upper()}:")
+    else:
+        hladana_hodnota = input(
+            f"Zadaj hladanu hodnotu pola {polozky_menu_najdi[vyber].upper()}:"
+        )
+    return databaza.najdi_ziaka_1(polozky_menu_najdi[vyber], hladana_hodnota)
 
-    #         nova_hodnota:int|str
-    #         if upravovane_pole not in self.predmety:
-    #             nova_hodnota = input(f"Zadaj novu hodnotu pola {upravovane_pole.upper()}:")
-    #         else:
-    #             nova_hodnota = get_int(
-    #                 f"Zadaj znamku zo {upravovane_pole.upper()}:", 1, 5, False
-    #             )
 
-        return databaza.uprav_ziaka(zoznam[vyber], upravujem_id, nova_hodnota)
+def vytvor_menu_uprav(upravujem_id: int) -> int | None:
+    polozky_menu_uprav: dict = {
+        "a": "Priezvisko",
+        "b": "Meno",
+        "c": "Sj",
+        "d": "Aj",
+        "e": "Ma",
+        "f": "Fy",
+        "g": "Bi",
+        "h": "Che",
+    }
+
+    vyber = input(
+        "Vyber jednu z moznosti\na - priezvisko\nb - meno\nc - Sj\nd - Aj\ne - Ma\nf - Fy\ng - Bi\nh - Che\nn - navrat\nZadaj volbu:"
+    )
+    if vyber == "n":
+        return -1
+    if vyber not in polozky_menu_uprav.keys():
+        return None
+    nova_hodnota: int | str
+    if polozky_menu_uprav[vyber] in Ziak.predmety:
+        nova_hodnota = get_int(
+            f"Zadaj znamku zo {polozky_menu_uprav[vyber].upper()}:", 1, 5, False
+        )
+    else:
+        nova_hodnota = input(
+            f"Zadaj novu hodnotu pola {polozky_menu_uprav[vyber].upper()}:"
+        )
+    return databaza.uprav_ziaka(polozky_menu_uprav[vyber], upravujem_id, nova_hodnota)
 
 
 def vytvor_menu() -> None:
@@ -179,8 +181,9 @@ def vytvor_menu() -> None:
                 else:
                     print(f"Ziak s ID {zmazat_id} bol vymazany!")
             case "4":
-                najst = input("Zadaj priezvisko hladaneho ziaka:")
-                nasiel = databaza.najdi_ziaka(najst)
+                # najst = input("Zadaj priezvisko hladaneho ziaka:")
+                nasiel = vytvor_menu_najdi()
+                # nasiel = databaza.najdi_ziaka(najst)
                 if not nasiel:
                     print("Taky ziak tam nie je")
                 else:

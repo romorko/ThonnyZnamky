@@ -58,6 +58,13 @@ def vypis_zaznamy() -> list[tuple]:
     return vypis_vysledok
 
 
+def najdi_ziaka_1(prehladavane_pole: str, hladany_udaj: str) -> list[tuple]:
+    sql_retazec = f"SELECT * FROM ziaci WHERE {prehladavane_pole} = ?"
+    with otvor_databazu() as conn:
+        najdene = conn.execute(sql_retazec, (hladany_udaj,)).fetchall()
+    return najdene
+
+
 def najdi_ziaka(hladaj_priezvisko) -> list[tuple]:
     with otvor_databazu() as conn:
         najdene = conn.execute(
@@ -74,7 +81,9 @@ def vymaz_ziaka(vymaz_id) -> int:
     return vymazane
 
 
-def uprav_ziaka(uprav_pole: str, uprav_id: int, upravena_hodnota: int|str) -> int | None:
+def uprav_ziaka(
+    uprav_pole: str, uprav_id: int, upravena_hodnota: int | str
+) -> int | None:
     with otvor_databazu() as conn:
         cur = conn.execute(
             f"UPDATE ziaci  SET {uprav_pole} = ? WHERE id = ?",
