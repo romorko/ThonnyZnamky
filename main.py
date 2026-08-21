@@ -1,118 +1,71 @@
-import sqlite3
-from common.utils import get_int
+#Praca so subormi 
+
+def citaj_cely_subor(nazov_suboru:str)->str:
+    """Precita naraz cely obsah suboru do jedneho retazca
+       mozny parameter n read(n) je max. pocet precitanych znakov
+    """
+    with open(nazov_suboru,'r',encoding="utf-8") as f:
+        obsah = f.read()
+    return obsah
 
 
-class Ziak:
+def citaj_jeden_riadok(nazov_suboru:str)->str:
+    """Precita jeden riadok zo suboru vratane konca riadku
+        strip odstrani koniec riadku aj medzery na zaciatku a konci
+        rstrip('\n') odstrani len koniec riadku a medzery necha
+    """
+    with open(nazov_suboru,'r',encoding="utf-8") as f:
+        riadok = f.readline().strip()
+    return riadok
 
-    predmety = ("sj", "aj", "ma", "fy", "che", "bi")
-    predmety_kontrola = frozenset(predmety)
-    hodnoty = {1, 2, 3, 4, 5}
+def citaj_vsetky_riadky(nazov_suboru:str)->list[str]:
+    """Precita vsetky riadky a vrati ich ako zoznam retazcov
+        cita aj konce riadkov
+    """
+    with open(nazov_suboru,'r',encoding="utf-8") as f:
+        riadky = f.readlines()
+    return riadky
 
-    def __init__(
-        self, nove_meno: str, nove_priezvisko: str, nove_znamky: dict[str, int]
-    ):
-        self.meno = nove_meno
-        self.priezvisko = nove_priezvisko
-        self.znamky = nove_znamky
+def citaj_po_riadkoch(nazov_suboru:str)->None :
+    """Najlepsi sposob spracovania textoveho suboru citanim po riadkoch"""
+    with open(nazov_suboru,'r',encoding="utf-8") as f:
+        for riadok in f:
+            print(riadok)  #alebo in0 spracovanie riadku...
+            slova = riadok.split() #napr rozdeli riadok na slova podla medzier
+            
+def citaj_po_znakoch(nazov_suboru:str)->None :
+    """Cita po znakoch do konca suboru 
+    """
+    with open(nazov_suboru, "r", encoding="utf-8") as f:
+        while znak := f.read(1):
+            print(repr(znak))
+            
+def citaj_po_znakoch_po_riadkoch(nazov_suboru:str)->None :
+    """Cita po znakoch po riakoch do konca suboru
+        restrip odsekne znak noveho riadku
+    """
+    with open(nazov_suboru, "r", encoding="utf-8") as f:
+        for riadok in f:
+            for znak in riadok.rstrip("\n"):
+                print(repr(znak))
+            
+            
+def zapis_retazec_do_suboru(nazov_suboru:str,text:str)->int:
+    """Zapise text do suboru, predtym ho VYMAZE!!!
+        Kazdy write vrati pocet zapisanych znakov
+        Koniec riadku sa musi zapisat zvlast
+    """
+    with open(nazov_suboru, "w", encoding="utf-8") as f:
+        pocet_zapisanych_znakov = f.write(text)
+    return pocet_zapisanych_znakov
 
-    def __str__(self):
-        return f"{self.meno} {self.priezvisko} {self.znamky} {self.priemer:.2f} {self.hodnotenie}"
+def zapis_retazce_do_suboru(nazov_suboru:str,retazce:list[str])->None :
+    with open(nazov_suboru, "w", encoding="utf-8") as f:
+        f.writelines(retazce)
+        
 
-    @property
-    def meno(self):
-        return self._meno
-
-    @meno.setter
-    def meno(self, other):
-        if isinstance(other, str):
-            self._meno = other
-        else:
-            raise TypeError("Nespravny typ dat!")
-
-    @property
-    def priezvisko(self):
-        return self._priezvisko
-
-    @priezvisko.setter
-    def priezvisko(self, other):
-        if isinstance(other, str):
-            self._priezvisko = other
-        else:
-            raise TypeError("Nespravny typ dat!")
-
-    @property
-    def znamky(self):
-        return self._znamky
-
-    @znamky.setter
-    def znamky(self, other):
-        if isinstance(other, dict):
-            for key, value in other.items():
-                if key not in self.predmety_kontrola:
-                    raise ValueError(
-                        f"Nepovoleny nazov predmetu:<{key}> Mozne hodnoty:{self.predmety_kontrola}"
-                    )
-                if value not in self.hodnoty:
-                    raise ValueError("Znamka musi byt cislo od 1 do 5")
-            self._znamky = other.copy()
-        else:
-            raise TypeError("Znamky musia byt slovnik!")
-
-    @property
-    def priemer(self) -> float:
-        return sum(self._znamky.values()) / len(self._znamky)
-
-    @property
-    def hodnotenie(self) -> str:
-        znamky = self._znamky.values()
-
-        priemer = self.priemer
-        najhorsia_znamka = max(znamky)
-
-        if najhorsia_znamka == 5:
-            return "neprospel"
-
-        if priemer <= 1.5 and najhorsia_znamka <= 2:
-            return "prospel s vyznamenaním"
-
-        if priemer <= 2.0 and najhorsia_znamka <= 3:
-            return "prospel veľmi dobre"
-
-        return "prospel"
-
-
-def nacitaj_znamky() -> Ziak:
-    nacitaj_meno = input("Zadaj meno:")
-    nacitaj_priezvisko = input("Zadaj priezvisko:")
-    zapisat = {}
-    for predmet in Ziak.predmety:
-        text = f"Zadaj znamku z {predmet.upper()}:"
-        zapisat[predmet] = get_int(text, 1, 5, False)
-    return Ziak(nacitaj_meno, nacitaj_priezvisko, zapisat)
-
-
-ziak = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
-with sqlite3.connect("znamky.db") as conn:
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO ziaci (meno, priezvisko,sj,aj,ma,fy,che,bi,priemer,hodnotenie) VALUES (?,?,?,?,?,?,?,?,?,?)",
-        (
-            ziak.meno,
-            ziak.priezvisko,
-            ziak.znamky["sj"],
-            ziak.znamky["aj"],
-            ziak.znamky["ma"],
-            ziak.znamky["fy"],
-            ziak.znamky["che"],
-            ziak.znamky["bi"],
-            ziak.priemer,
-            ziak.hodnotenie,
-        ),
-    )
-    conn.commit()  # pri with nie je nutný, ale pri učení je názorný
-    # cur.execute("SELECT * FROM ziaci")
-    # print(cur.fetchall())
-
-
-# Z = Ziak("Roman", "Ravas", {"sj": 1, "aj": 1, "ma": 1, "fy": 1, "che": 1, "bi": 1})
-# Z1 = nacitaj_znamky()
+def pridaj_retazec_do_suboru(nazov_suboru:str,text:str)->int:
+    with open(nazov_suboru, "a", encoding="utf-8") as f:
+        pocet = f.write(text)    
+    return pocet
+    
